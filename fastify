@@ -1,0 +1,7 @@
+#! /bin/bash
+
+MODEL_NAME=$1
+FOLDER_NAME=$2
+
+echo "Generating apis for ${MODEL_NAME}..."
+python lib/fastify.py --model_name $MODEL_NAME --fast_api_app_folder $FOLDER_NAME

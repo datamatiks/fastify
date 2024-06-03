@@ -1,0 +1,20 @@
+[project]
+name = "fastify"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "nifrali", email = "francisco.liwa@gmail.com"},
+]
+dependencies = [
+    "textblob>=0.18.0.post0",
+    "fastapi>=0.111.0",
+    "sqlalchemy>=2.0.30",
+    "sqlmodel>=0.0.18",
+]
+requires-python = "==3.8.*"
+readme = "README.md"
+license = {text = "MIT"}
+
+
+[tool.pdm]
+distribution = false
