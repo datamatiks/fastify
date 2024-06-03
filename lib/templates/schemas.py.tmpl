@@ -1,0 +1,14 @@
+from db.tables.${model_name} import ${model_class_name}Base, ${model_class_name}
+from sqlmodel import SQLModel, Field
+from sqlalchemy.sql import text
+from typing import Optional
+
+class ${model_class_name}Create(${model_class_name}Base):
+    ...
+
+class ${model_class_name}Read(${model_class_name}):
+    ...
+
+class ${model_class_name}Patch(SQLModel):
+    ${model_name_obj}_name: Optional[str] = None
+    updated_by: str = None

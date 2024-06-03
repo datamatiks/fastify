@@ -1,0 +1,116 @@
+from fastapi import APIRouter, HTTPException, status, Body, Depends
+from sqlalchemy.exc import IntegrityError
+from fastapi import Depends  
+from sqlalchemy.ext.asyncio import AsyncSession  
+
+
+from db.errors import EntityDoesNotExist
+from db.services.${model_name} import ${model_class_name}Service
+from schemas.${model_name} import ${model_class_name}Create, ${model_class_name}Patch, ${model_class_name}Read
+from typing import List, Optional
+
+
+async def get_db() -> AsyncSession:
+        async with async_session() as session:  
+            yield session  
+            await session.commit()
+  
+  
+def get_service(service):  
+    def _get_service(session: AsyncSession = Depends(get_db)):  
+        return service(session)  
+  
+    return _get_service
+
+${model_name}_router = APIRouter(tags=["${model_class_name}"])
+
+@${model_name}_router.get(
+    "/",
+    response_model=List[Optional[${model_class_name}Read]],
+    status_code=status.HTTP_200_OK,
+    name="get_${model_name}",
+)
+async def get_${model_name}(
+    service: ${model_class_name}Service = Depends(get_service(${model_class_name}Service)),
+) -> List[Optional[${model_class_name}Read]]:
+    return await service.list()
+
+
+@${model_name}_router.post(
+    "/",
+    response_model=${model_class_name}Read,
+    status_code=status.HTTP_201_CREATED,
+    name="create_${model_name_obj}",
+)
+async def create_${model_name_obj}(
+    ${model_name_obj}_create:${model_class_name}Create,
+    service: ${model_class_name}Service = Depends(get_service(${model_class_name}Service)),
+) -> ${model_class_name}Read:
+    try:
+        return await service.create(${model_name_obj}_create=${model_name_obj}_create)
+    except IntegrityError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.orig.args[0])
+        )
+
+
+@${model_name}_router.get(
+    "/{${model_name_obj}_id}",
+    response_model=${model_class_name}Read,
+    status_code=status.HTTP_200_OK,
+    name="get_${model_name_obj}",
+)
+async def get_${model_name_obj}(
+    ${model_name_obj}_id: int,
+    service: ${model_class_name}Service = Depends(get_service(${model_class_name}Service)),
+) -> ${model_class_name}Read:
+    try:
+        return await service.get(${model_name_obj}_id)
+    except EntityDoesNotExist:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="${model_name_obj_cap} not found!"
+        )
+
+
+@${model_name}_router.put(
+    "/{${model_name_obj}_id}",
+    response_model=${model_class_name}Read,
+    status_code=status.HTTP_200_OK,
+    name="patch_${model_name_obj}",
+)
+async def patch_${model_name_obj}(
+    ${model_name_obj}_id: int,
+    ${model_name}_patch: ${model_class_name}Patch,
+    service: ${model_class_name}Service = Depends(get_service(${model_class_name}Service)),
+) -> ${model_class_name}Read:
+    try:
+        return await service.patch(${model_name_obj}_id=${model_name_obj}_id, ${model_name}_patch=${model_name}_patch)
+    except IntegrityError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.orig.args[0])
+        )
+    except EntityDoesNotExist:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="${model_name_obj_cap} not found!"
+        )
+
+
+@${model_name}_router.delete(
+    "/{${model_name_obj}_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    name="delete_${model_name_obj}",
+)
+async def delete_${model_name_obj}(
+    ${model_name_obj}_id: int,
+    service: ${model_class_name}Service = Depends(get_service(${model_class_name}Service)),
+) -> None:
+    try:
+        return await service.delete(${model_name_obj}_id=${model_name_obj}_id)
+    except IntegrityError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.orig.args[0])
+        )
+    except EntityDoesNotExist:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="${model_name_obj_cap} not found!"
+        )

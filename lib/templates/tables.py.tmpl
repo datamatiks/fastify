@@ -1,0 +1,15 @@
+from sqlmodel import SQLModel, UniqueConstraint, Field
+from db.tables.base_class import DatesModel, IDModel
+from typing import Optional
+
+class ${model_class_name}Base(SQLModel):
+    __table_args__ = (
+        UniqueConstraint("${model_name_obj}_name", name="${model_name}_${model_name_obj}_name_key"),
+    )
+    ${model_name_obj}_name: str
+    created_by: str
+    updated_by: str
+
+
+class ${model_class_name}(${model_class_name}Base, IDModel, DatesModel, table=True):
+    __tablename__ = "${model_name}"

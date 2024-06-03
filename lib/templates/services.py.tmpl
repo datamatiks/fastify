@@ -1,0 +1,68 @@
+from sqlmodel.ext.asyncio.session import AsyncSession
+from db.tables.${model_name} import ${model_class_name}
+from db.errors import EntityDoesNotExist
+from schemas.${model_name} import ${model_class_name}Create, ${model_class_name}Patch, ${model_class_name}Read
+from sqlmodel import select
+from typing import List, Optional
+
+class ${model_class_name}Service:
+    def __init__(self, session:AsyncSession) -> None:
+        self.session = session
+
+    async def _get_instance(self, ${model_name_obj}_id: int):
+        statement = (
+            select(${model_class_name})
+            .where(${model_class_name}.id == ${model_name_obj}_id)
+        )
+        results = await self.session.exec(statement)
+        return results.first()
+
+    async def create(self, ${model_name_obj}_create: ${model_class_name}Create) -> ${model_class_name}Read:
+        db_transaction = ${model_class_name}.from_orm(${model_name_obj}_create)
+        self.session.add(db_transaction)
+        await self.session.commit()
+        await self.session.refresh(db_transaction)
+
+        return ${model_class_name}Read(**db_transaction.dict())
+    
+    async def list(self) -> List[${model_class_name}Read]:
+        results = await self.session.execute(
+            select(${model_class_name})
+        )
+
+        return [
+            ${model_class_name}Read(**${model_name_obj}.dict())
+            for ${model_name_obj} in results.scalars()
+        ]
+    
+    async def get(self, ${model_name_obj}_id: int) -> Optional[${model_class_name}Read]:
+        db_transaction = await self._get_instance(${model_name_obj}_id)
+        if db_transaction is None:
+            raise EntityDoesNotExist
+        
+        return ${model_class_name}Read(**db_transaction.dict())
+    
+    async def patch(self, ${model_name_obj}_id: int, ${model_name}_patch: ${model_class_name}Patch) -> Optional[${model_class_name}Read]:
+        db_transaction = await self._get_instance(${model_name_obj}_id)
+
+        if db_transaction is None:
+            raise EntityDoesNotExist
+        
+        transaction_data = ${model_name}_patch.dict(exclude_none=True)
+        for key, value in transaction_data.items():
+            setattr(db_transaction, key, value)
+        self.session.add(db_transaction)
+        await self.session.commit()
+        await self.session.refresh(db_transaction)
+
+        return ${model_class_name}Read(**db_transaction.dict())
+    
+    async def delete(self, ${model_name_obj}_id: int) -> None:
+        ${model_name_obj} = await self._get_instance(${model_name_obj}_id)
+
+        if ${model_name_obj} is None:
+            raise EntityDoesNotExist
+
+        await self.session.delete(${model_name_obj})
+        await self.session.commit()
+        return {"ok": True}

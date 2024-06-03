@@ -1,0 +1,6 @@
+from fastapi import APIRouter
+from api.routes.${model_name} import ${model_name}_router
+
+router = APIRouter()
+
+router.include_router(${model_name}_router, prefix="/${model_name}")
